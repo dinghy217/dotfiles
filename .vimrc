@@ -3,9 +3,12 @@ call plug#begin('~/.vim/plugged')
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-surround'
 Plug 'airblade/vim-gitgutter'
+Plug 'junegunn/gv.vim'
+Plug 'tpope/vim-sensible'
+" Unsure I want to keep, seems niche for Xml/Html, adding removing parens is
+" nice
+Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
 Plug 'scrooloose/syntastic'
 Plug 'vim-airline/vim-airline'
@@ -15,6 +18,8 @@ Plug 'junegunn/fzf.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --all' }
 Plug 'rust-lang/rust.vim'
+" Unsure I'll use ,ig toggles indents- kinda ugly
+Plug 'nathanaelkane/vim-indent-guides' 
 
 call plug#end()
 
@@ -81,3 +86,5 @@ let g:rustfmt_autosave = 1
 nmap <leader>f :Files<CR>
 nmap <leader>b :Buffers<CR>
 
+" Get gitgutter to update signs faster, every 100ms
+set updatetime=100
