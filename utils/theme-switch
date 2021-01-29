@@ -9,9 +9,10 @@ then
     echo 'Switching to Dark Theme'
     sed -i 's/\*light/\*dark/g' ~/.config/alacritty/alacritty.yml
 else
+    theme="light"
     echo 'Switching to Light Theme'
     sed -i 's/\*dark/\*light/g' ~/.config/alacritty/alacritty.yml
 fi
 
-echo "--theme=\"gruvbox-$1\"" > ~/.config/bat/config
+echo "--theme=\"gruvbox-$theme\"" > ~/.config/bat/config
 export THEME_CONTEXT="$1"
