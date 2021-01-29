@@ -50,6 +50,9 @@ fi
 
 # dude seriously conda & my zsh just don't mix. `clear` doesn't work with the previous block.
 
+# Get utils like theme-switch available
+export PATH="/home/dinghy/utils:$PATH"
+
 # Something something autocomplete ??? profit. we will see
 eval "$(starship init zsh)"
 

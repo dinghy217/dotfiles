@@ -112,10 +112,10 @@ set updatetime=100
 
 function SetTerminalColor(profile)
 	if a:profile =='dark'
-		:!theme-switch dark
+		:!source theme-switch dark
 		set background=dark
 	else
-		:!theme-switch light
+		:!source theme-switch light
 		set background=light
 	endif
 endfunction
