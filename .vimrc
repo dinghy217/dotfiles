@@ -10,7 +10,8 @@ Plug 'tpope/vim-sensible'
 " nice
 Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
-Plug 'dense-analysis/ale'
+" Using coc
+" Plug 'dense-analysis/ale'
 Plug 'vim-airline/vim-airline'
 Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -19,12 +20,14 @@ Plug 'vimwiki/vimwiki'
 " Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --all' }
 Plug 'rust-lang/rust.vim'
 " Unsure I'll use ,ig toggles indents- kinda ugly
-Plug 'nathanaelkane/vim-indent-guides' 
+" Plug 'nathanaelkane/vim-indent-guides' 
 Plug 'vim-python/python-syntax'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'mhinz/vim-startify'
+Plug 'nathangrigg/vim-beancount'
 
 call plug#end()
 
@@ -32,22 +35,6 @@ call plug#end()
 let mapleader = ","
 
 let g:python_highlight_all = 1
-
-let g:ale_set_highlights = 0
-let g:airline#extensions#ale#enabled = 1
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_insert_leave = 0
-let g:ale_lint_on_enter = 1
-let g:ale_set_loclist = 0
-let g:ale_list_window_size = 5
-let g:ale_close_preview_on_insert = 1
-let g:ale_set_balloons = 1
-let g:ale_hover_to_preview=0
-" Opens preview window without taking focus to print error info from current line
-" let g:ale_cursor_detail = 1
-
-nmap <silent> <C-w> <Plug>(ale_previous_wrap)
-nmap <silent> <C-s> <Plug>(ale_next_wrap)
 
 " Configure NerdTree 
 map <leader>nn :NERDTreeMirror<CR>
@@ -106,6 +93,7 @@ nmap <leader>t :BTags<CR>
 nmap <leader>T :Tags<CR>
 nmap <leader>h :History<CR>
 nmap <leader>a :Ag<CR>
+nmap <leader>r :Rg<CR>
 
 " Get gitgutter to update signs faster, every 100ms
 set updatetime=100
@@ -191,6 +179,8 @@ set shell=/usr/bin/zsh
 """"""""""""""""
 " Configure Coc
 """"""""""""""""
+" Install coc-rls for rust following: https://github.com/neoclide/coc-rls
+" K to bring up docs, C-f/C-b to scroll docs
 " TextEdit might fail if hidden is not set.
 set hidden
 
@@ -245,6 +235,7 @@ inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [G :CocDiagnostics<CR>
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
@@ -335,21 +326,39 @@ command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organize
 " provide custom statusline: lightline.vim, vim-airline.
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-" Mappings for CoCList
-" Show all diagnostics.
-" These  hide cursor after enabling
-" nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-" nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-" Show commands.
-" nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-" nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-" nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-" nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-" nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-" nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+let NERDTreeShowHidden=1
+
+let g:startify_bookmarks = systemlist("cut -sd' ' -f 2- ~/.NERDTreeBookmarks")
+
+" Read ~/.NERDTreeBookmarks file and takes its second column
+function! s:nerdtreeBookmarks()
+    let bookmarks = systemlist("cut -d' ' -f 2- ~/.NERDTreeBookmarks")
+    let bookmarks = bookmarks[0:-2] " Slices an empty last line
+    return map(bookmarks, "{'line': v:val, 'path': v:val}")
+endfunction
+
+" returns all modified files of the current git repo
+" `2>/dev/null` makes the command fail quietly, so that when we are not
+" in a git repo, the list will be empty
+function! s:gitModified()
+    let files = systemlist('git ls-files -m 2>/dev/null')
+    return map(files, "{'line': v:val, 'path': v:val}")
+endfunction
+
+" same as above, but show untracked files, honouring .gitignore
+function! s:gitUntracked()
+    let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
+    return map(files, "{'line': v:val, 'path': v:val}")
+endfunction
+
+let g:startify_lists = [
+        \ { 'type': 'files',     'header': ['   MRU']            },
+        \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
+        \ { 'type': 'sessions',  'header': ['   Sessions']       },
+        \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+        \ { 'type': function('s:gitModified'),  'header': ['   git modified']},
+        \ { 'type': function('s:gitUntracked'), 'header': ['   git untracked']},
+        \ { 'type': 'commands',  'header': ['   Commands']       },
+        \]
+
