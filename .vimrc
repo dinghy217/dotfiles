@@ -1,50 +1,76 @@
 call plug#begin('~/.vim/plugged')
 
+" Everyone needs a file browser
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+" Don't forget to comment your code!
 Plug 'tpope/vim-commentary'
+" Source control is probably a good idea
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim'
+" Don't question this one
 Plug 'tpope/vim-sensible'
 " Unsure I want to keep, seems niche for Xml/Html, adding removing parens is
 " nice
 Plug 'tpope/vim-surround'
+" Dark/Light theme
 Plug 'morhetz/gruvbox'
-" Using coc
-" Plug 'dense-analysis/ale'
+" Status bar
 Plug 'vim-airline/vim-airline'
+" Navigate by scope, code tags
 Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
+" Code search is #1
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+" Best organizational/notetaking tool
 Plug 'vimwiki/vimwiki'
-" Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --all' }
+" Language syntax highlighting
 Plug 'rust-lang/rust.vim'
-" Unsure I'll use ,ig toggles indents- kinda ugly
-" Plug 'nathanaelkane/vim-indent-guides' 
 Plug 'vim-python/python-syntax'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'mhinz/vim-startify'
 Plug 'nathangrigg/vim-beancount'
+" Language server, requires post install configuration
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Startup menu
+Plug 'mhinz/vim-startify'
+" Debugger
 Plug 'puremourning/vimspector'
 
 call plug#end()
 
-
+" Can't live without comma as leader key
 let mapleader = ","
-" Start NERDTree when Vim starts with a directory argument.
-" Start NERDTree. If a file is specified, move the cursor to its window.
-" Start NERDTree when Vim is started without file arguments.
+
+"
+" NERDTree configuration
+"
+"" Show dotfiles in browser
+let NERDTreeShowHidden=1
+
 autocmd StdinReadPre * let s:std_in=1
+"" Start NERDTree. If a file is specified, move the cursor to its window.
 autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+"" Start NERDTree when Vim is started without file arguments.
 autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+"" Start NERDTree when Vim starts with a directory argument, focus on file browser
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
-    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
-" Exit Vim if NERDTree is the only window remaining in the only tab.
+    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | wincmd t | endif
+"" Exit Vim if NERDTree is the only window remaining in the only tab. :q ftw
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
+"" simple shortcuts
+map <leader>nn :NERDTreeMirror<CR>
+map <leader>n :NERDTreeToggle<CR>
+map <leader>nf :NERDTreeFind<CR>
+
+"" Prettier menus
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+
+"
+" Debugger configuration
+"
 let g:vimspector_base_dir='/home/dinghy/.vim/plugged/vimspector'
 nnoremap <Leader>dd :call vimspector#Launch()<CR>
 nnoremap <Leader>de :call vimspector#Reset()<CR>
@@ -58,130 +84,56 @@ nmap <Leader>dh <Plug>VimspectorStepOut
 nmap <Leader>dl <Plug>VimspectorStepInto
 nmap <Leader>dj <Plug>VimspectorStepOver
 
-let g:python_highlight_all = 1
 
-" Configure NerdTree 
-map <leader>nn :NERDTreeMirror<CR>
-map <leader>n :NERDTreeToggle<CR>
-map <leader>nf :NERDTreeFind<CR>
-
-
-let g:NERDTreeDirArrowExpandable = '▸'
-let g:NERDTreeDirArrowCollapsible = '▾'
-
-" Show command when typing command in bottom right
-set showcmd
-
-" Get Alacritty to use true colors, found on stackoverflow
-if exists('+termguicolors')
-	let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
-	let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
-	set termguicolors
-endif
-
-" set colorscheme to dark-gruvbox by default
-colorscheme gruvbox
-set background=dark
-
-" Ctrl+hjkl movement between panes
+"
+" Simple configurations
+"
+"" Ctrl+hjkl movement between panes for consistency
 nmap <silent> <c-k> :wincmd k<CR>
 nmap <silent> <c-j> :wincmd j<CR>
 nmap <silent> <c-h> :wincmd h<CR>
 nmap <silent> <c-l> :wincmd l<CR>
-
-" Hybrid line numberings
+"" Show command when typing command in bottom right
+set showcmd
+"" Hybrid line numberings for faster normal mode
 set number relativenumber
-
-" F8 to view tags for current buffer
-nmap <F8> :TagbarToggle<CR>
-
-" Make you save hidden buffers
+"" Make you save hidden buffers, enable switching off unsaved buffers
 set hidden
-
-
-" Run :RustFmt to format code
-
-let g:rustfmt_autosave = 1
-
-
-" Map ,f to fuzzy file find
-nmap <leader>f :Files<CR>
-nmap <leader>F :GFiles<CR>
-nmap <leader>b :Buffers<CR>
-nmap <leader>l :BLines<CR>
-nmap <leader>L :Lines<CR>
-nmap <leader>t :BTags<CR>
-nmap <leader>T :Tags<CR>
-nmap <leader>h :History<CR>
-nmap <leader>a :Ag<CR>
-nmap <leader>r :Rg<CR>
-
-" Get gitgutter to update signs faster, every 100ms
-set updatetime=100
-
-function SetTerminalColor(profile)
-	if a:profile =='dark'
-		:!source theme-switch dark
-		set background=dark
-	else
-		:!source theme-switch light
-		set background=light
-	endif
-endfunction
-
-if $THEME_CONTEXT == 'dark'
-	set background=dark
-else
-	set background=light
-endif
-
-nnoremap <silent> <leader>td :call SetTerminalColor("dark")<CR>
-nnoremap <silent> <leader>tl :call SetTerminalColor("light")<CR>
-
+"" I don't care for swapfiles for my workflow
 set noswapfile
-
-" Ignore case when searching
+"" Ignore case when searching
 set ignorecase
-
-" When searching try to be smart about cases 
+"" When searching try to be smart about cases 
 set smartcase
-
-" Highlight search results
+"" Highlight search results
 set hlsearch
-
-" Makes search act like search in modern browsers
+"" Makes search act like search in modern browsers
 set incsearch 
-
-" Don't redraw while executing macros (good performance config)
+"" Don't redraw while executing macros (good performance config)
 set lazyredraw 
-
-" Use spaces instead of tabs
+"" Use spaces instead of tabs, Makefiles hate this one trick
 set expandtab
-
-" Be smart when using tabs ;)
+"" Be smart when using tabs ;)
 set smarttab
-
-" 1 tab == 4 spaces
+"" 1 tab == 4 spaces
 set shiftwidth=4
 set tabstop=4
-
-autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
-
-" Linebreak on 500 characters
+"" Linebreak on 500 characters
 set lbr
 set tw=500
-
-set ai "Auto indent
-set si "Smart indent
-set wrap "Wrap lines
-
-" Disable highlight when <leader><cr> is pressed
+"" Auto indent
+set ai
+"" Smart indent
+set si
+"" Wrap lines
+set wrap
+"" Disable highlight when <leader><cr> is pressed
+""" AKA a search can be really annoying once you're done with it
 map <silent> <leader><cr> :noh<cr>
-
-" Return to last edit position when opening files (You want this!)
+"" Return to last edit position when opening files (You want this!)
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
-" Toggle paste mode on and off
+"" Toggle paste mode on and off
+""" Some terminals copy/paste is less than stellar
 map <leader>pp :setlocal paste!<cr>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -196,6 +148,68 @@ endtry
 
 set shell=/usr/bin/zsh
 
+"
+" Theme
+"
+"" set colorscheme to dark-gruvbox by default
+colorscheme gruvbox
+set background=dark
+
+"" Get Alacritty to use true colors, found on stackoverflow
+if exists('+termguicolors')
+	let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
+	let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
+	set termguicolors
+endif
+
+"" personal helpers to invoke script that switches terminal dark/light mode
+function SetTerminalColor(profile)
+	if a:profile =='dark'
+		:!source theme-switch dark
+		set background=dark
+	else
+		:!source theme-switch light
+		set background=light
+	endif
+endfunction
+
+"" Helper script interfaces via a simple env var on which mode should be active
+if $THEME_CONTEXT == 'dark'
+	set background=dark
+else
+	set background=light
+endif
+
+"" Convenience for switching terminal theme while in vim
+nnoremap <silent> <leader>td :call SetTerminalColor("dark")<CR>
+nnoremap <silent> <leader>tl :call SetTerminalColor("light")<CR>
+
+"
+" Codesearch config
+"
+"" Map ,f to fuzzy file find
+nmap <leader>f :Files<CR>
+nmap <leader>r :Rg<CR>
+nmap <leader>F :GFiles<CR>
+nmap <leader>b :Buffers<CR>
+nmap <leader>l :BLines<CR>
+nmap <leader>L :Lines<CR>
+nmap <leader>t :BTags<CR>
+nmap <leader>T :Tags<CR>
+nmap <leader>h :History<CR>
+nmap <leader>a :Ag<CR>
+
+"" F8 to view tags for current buffer
+nmap <F8> :TagbarToggle<CR>
+
+" Get gitgutter to update signs faster, every 100ms
+set updatetime=100
+
+"
+" Language Server
+"
+"" Outright copied/pasted, 
+"" TODO: I recognize there are conflicts with some settings in vimrc
 
 """"""""""""""""
 " Configure Coc
@@ -348,8 +362,11 @@ command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organize
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 
-let NERDTreeShowHidden=1
 
+"
+" Startify Configuration
+"
+"" Include NerdTreeBookmarks, I rarely use bookmarks
 let g:startify_bookmarks = systemlist("cut -sd' ' -f 2- ~/.NERDTreeBookmarks")
 
 " Read ~/.NERDTreeBookmarks file and takes its second column
@@ -359,15 +376,15 @@ function! s:nerdtreeBookmarks()
     return map(bookmarks, "{'line': v:val, 'path': v:val}")
 endfunction
 
-" returns all modified files of the current git repo
-" `2>/dev/null` makes the command fail quietly, so that when we are not
-" in a git repo, the list will be empty
+"" returns all modified files of the current git repo
+"" `2>/dev/null` makes the command fail quietly, so that when we are not
+"" in a git repo, the list will be empty
 function! s:gitModified()
     let files = systemlist('git ls-files -m 2>/dev/null')
     return map(files, "{'line': v:val, 'path': v:val}")
 endfunction
 
-" same as above, but show untracked files, honouring .gitignore
+"" same as above, but show untracked files, honouring .gitignore
 function! s:gitUntracked()
     let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
     return map(files, "{'line': v:val, 'path': v:val}")
@@ -383,10 +400,19 @@ let g:startify_lists = [
         \ { 'type': 'commands',  'header': ['   Commands']       },
         \]
 
-" Enable startify and nerdtree and target startify pane
+"" Enable startify and nerdtree together, and target startify pane
 autocmd VimEnter * if !argc()
             \ |   wincmd w
             \ |   Startify
             \ |   NERDTree
             \ |   wincmd p
             \ | endif
+
+"
+" Language Specific configuration
+"
+let g:python_highlight_all = 1
+"" tip, run :RustFmt to format code on demand
+let g:rustfmt_autosave = 1
+"" JS/JSX can be very nested. 2 spaces is sensible
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
