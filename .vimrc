@@ -28,22 +28,43 @@ Plug 'mxw/vim-jsx'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mhinz/vim-startify'
 Plug 'nathangrigg/vim-beancount'
+Plug 'puremourning/vimspector'
 
 call plug#end()
 
 
 let mapleader = ","
+" Start NERDTree when Vim starts with a directory argument.
+" Start NERDTree. If a file is specified, move the cursor to its window.
+" Start NERDTree when Vim is started without file arguments.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
+    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+" Exit Vim if NERDTree is the only window remaining in the only tab.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+let g:vimspector_base_dir='/home/dinghy/.vim/plugged/vimspector'
+nnoremap <Leader>dd :call vimspector#Launch()<CR>
+nnoremap <Leader>de :call vimspector#Reset()<CR>
+nnoremap <Leader>dc :call vimspector#Continue()<CR>
+
+nnoremap <Leader>dt :call vimspector#ToggleBreakpoint()<CR>
+nnoremap <Leader>dT :call vimspector#ClearBreakpoints()<CR>
+
+nmap <Leader>dk <Plug>VimspectorRestart
+nmap <Leader>dh <Plug>VimspectorStepOut
+nmap <Leader>dl <Plug>VimspectorStepInto
+nmap <Leader>dj <Plug>VimspectorStepOver
 
 let g:python_highlight_all = 1
 
 " Configure NerdTree 
 map <leader>nn :NERDTreeMirror<CR>
 map <leader>n :NERDTreeToggle<CR>
+map <leader>nf :NERDTreeFind<CR>
 
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | exe 'cd '.argv()[0] | endif
-
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
@@ -84,8 +105,8 @@ let g:rustfmt_autosave = 1
 
 
 " Map ,f to fuzzy file find
-nmap <leader>f :GFiles<CR>
-nmap <leader>F :Files<CR>
+nmap <leader>f :Files<CR>
+nmap <leader>F :GFiles<CR>
 nmap <leader>b :Buffers<CR>
 nmap <leader>l :BLines<CR>
 nmap <leader>L :Lines<CR>
@@ -362,3 +383,10 @@ let g:startify_lists = [
         \ { 'type': 'commands',  'header': ['   Commands']       },
         \]
 
+" Enable startify and nerdtree and target startify pane
+autocmd VimEnter * if !argc()
+            \ |   wincmd w
+            \ |   Startify
+            \ |   NERDTree
+            \ |   wincmd p
+            \ | endif
