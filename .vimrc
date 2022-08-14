@@ -1,7 +1,5 @@
 call plug#begin('~/.vim/plugged')
 
-" Everyone needs a file browser
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 " Don't forget to comment your code!
 Plug 'tpope/vim-commentary'
 " Source control is probably a good idea
@@ -36,6 +34,12 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mhinz/vim-startify'
 " Debugger
 Plug 'puremourning/vimspector'
+" Everyone needs a file browser
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+" Show files' git status on file browser
+Plug 'Xuyuanp/nerdtree-git-plugin'
+" Show cool file names
+Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 
@@ -45,6 +49,9 @@ let mapleader = ","
 "
 " NERDTree configuration
 "
+" For devicons
+set encoding=UTF-8
+
 "" Show dotfiles in browser
 let NERDTreeShowHidden=1
 
@@ -67,6 +74,8 @@ map <leader>nf :NERDTreeFind<CR>
 "" Prettier menus
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
+"" Don't show git icons within [ ] 
+let g:NERDTreeGitStatusConcealBrackets = 1 " default: 0
 
 "
 " Debugger configuration
@@ -127,6 +136,10 @@ set ai
 set si
 "" Wrap lines
 set wrap
+"" install gvim for Xorg and +clipboard compile option
+"" for system clipboard, y defaults to system clippy
+set clipboard=unnamedplus
+
 "" Disable highlight when <leader><cr> is pressed
 """ AKA a search can be really annoying once you're done with it
 map <silent> <leader><cr> :noh<cr>
@@ -416,3 +429,4 @@ let g:python_highlight_all = 1
 let g:rustfmt_autosave = 1
 "" JS/JSX can be very nested. 2 spaces is sensible
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
+autocmd FileType yaml setlocal shiftwidth=2 tabstop=2

@@ -2,7 +2,10 @@
 export ZSH="/home/dinghy/.oh-my-zsh"
 
 ZSH_THEME="af-magic"
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+# No longer messin with k3s, this was lazy anyways
+# based on how the package manager was installing the 
+# config file
+# export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 
 # For fzf plugin to allow ** syntax for searching
