@@ -34,14 +34,23 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mhinz/vim-startify'
 " Debugger
 Plug 'puremourning/vimspector'
+" Talking to db's is nice
+Plug 'tpope/vim-dadbod'
+Plug 'kristijanhusak/vim-dadbod-ui'
 " Everyone needs a file browser
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 " Show files' git status on file browser
 Plug 'Xuyuanp/nerdtree-git-plugin'
 " Show cool file names
 Plug 'ryanoasis/vim-devicons'
+" Markdown preview
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
 call plug#end()
+
+":bufdo e  - refreshes codeblocks when lang changes
+" open markdown previewer in browser
+nmap <C-p> <Plug>MarkdownPreviewToggle
 
 " Can't live without comma as leader key
 let mapleader = ","
@@ -76,6 +85,12 @@ let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
 "" Don't show git icons within [ ] 
 let g:NERDTreeGitStatusConcealBrackets = 1 " default: 0
+
+"
+" DB Stuff, has autocomplete support :CocInstall coc-db
+"
+let g:db_ui_winwidth = 30
+let g:db_ui_use_nerd_fonts = 1
 
 "
 " Debugger configuration
