@@ -1,0 +1,82 @@
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$fill\
+$rust\
+$python\
+$time\
+$line_break\
+$character\
+"""
+
+[fill]
+symbol = ' '
+
+[directory]
+style = "underline blue"
+before_repo_root_style = "dimmed blue"
+repo_root_style = "underline blue"
+truncate_to_repo =  false
+
+[time]
+disabled = false
+format = '[$time]($style)'
+style = 'dimmed white'
+time_format = '%a|%b%e|%R '
+utc_time_offset = '-5'
+
+# Replace the "❯" success_symbol in the prompt with "➜"
+[character]      # The name of the module we are configuring is "character"
+success_symbol = "➾(purple)"     
+error_symbol = "[➾](red)"
+# error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[git_branch]
+format = "[$branch]($style)"
+style = "italic #c7bfd9"
+
+[git_status]
+format = "[[(*$conflicted$untracked$unmodified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
+style = "cyan"
+conflicted = "​"
+untracked = "​"
+modified = "​"
+staged = "​"
+renamed = "​"
+deleted = "​"
+stashed = "≡"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "dimmed white"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "dimmed yellow"
+
+[python]
+format = "❲$virtualenv ❳${version}$symbol($style) "
+symbol = "𝕡𝕪"
+style = "white"
+# Disable the package module, hiding it from the prompt completely
+[package]
+disabled = true
+
+[docker_context]
+symbol = "🐋"
+
+[rust]
+format = "$version$symbol($style) "
+# symbol = "ᶠᵉ"
+symbol = "ⓕⓔ"
+style = "dimmed red"
+
+[conda]
+symbol = "🐍"
+style = "bold green"
