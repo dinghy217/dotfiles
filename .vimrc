@@ -45,6 +45,10 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'ryanoasis/vim-devicons'
 " Markdown preview
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+" Keep function context present
+Plug 'wellle/context.vim'
+" new theme who dis
+Plug 'sonph/onehalf', { 'rtp': 'vim' }
 
 call plug#end()
 
@@ -180,7 +184,7 @@ set shell=/usr/bin/zsh
 " Theme
 "
 "" set colorscheme to dark-gruvbox by default
-colorscheme gruvbox
+" colorscheme gruvbox
 set background=dark
 
 "" Get Alacritty to use true colors, found on stackoverflow
@@ -445,3 +449,9 @@ let g:rustfmt_autosave = 1
 "" JS/JSX can be very nested. 2 spaces is sensible
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
+
+syntax on
+set t_Co=256
+set cursorline
+colorscheme onehalfdark
+let g:airline_theme='onehalfdark'
