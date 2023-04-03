@@ -455,3 +455,6 @@ set t_Co=256
 set cursorline
 colorscheme onehalfdark
 let g:airline_theme='onehalfdark'
+
+" let me scroll and click in vimspector
+set mouse=a

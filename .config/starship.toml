@@ -10,6 +10,7 @@ $fill\
 $rust\
 $python\
 $time\
+${custom.time}\
 $line_break\
 $character\
 """
@@ -27,7 +28,7 @@ truncate_to_repo =  false
 disabled = false
 format = '[$time]($style)'
 style = 'dimmed white'
-time_format = '%a|%b%e|%R '
+time_format = '%a|%b%e|'
 utc_time_offset = '-5'
 
 # Replace the "❯" success_symbol in the prompt with "➜"
@@ -61,7 +62,7 @@ format = "[$duration]($style) "
 style = "dimmed yellow"
 
 [python]
-format = "❲$virtualenv ❳${version}$symbol($style) "
+format = "(❲$virtualenv ❳)${version}$symbol($style) "
 symbol = "𝕡𝕪"
 style = "white"
 # Disable the package module, hiding it from the prompt completely
@@ -80,3 +81,10 @@ style = "dimmed red"
 [conda]
 symbol = "🐍"
 style = "bold green"
+
+[custom.time]
+command = "python ~/.config/display.py"
+# command = "echo blah"
+when = true
+style = "dimmed white"
+format = "$output "
