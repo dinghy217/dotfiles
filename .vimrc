@@ -1,5 +1,7 @@
 call plug#begin('~/.vim/plugged')
 
+Plug 'hashivim/vim-terraform'
+Plug 'christoomey/vim-tmux-navigator'
 " Don't forget to comment your code!
 Plug 'tpope/vim-commentary'
 " Source control is probably a good idea
@@ -49,9 +51,25 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'wellle/context.vim'
 " new theme who dis
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
+" launch tests from vim!
+Plug 'vim-test/vim-test'
+" tpope launch things elsewhere and parse it back in quickfix list
+Plug 'tpope/vim-dispatch'
+" I wanna try the tmux term at the bottom
+Plug 'preservim/vimux'
 
 call plug#end()
 
+
+" have vim-test use vim-dispatch for running tests
+let test#strategy = "vimux"
+" install cargo-nextest for prettier rust tests, diff opts than 
+" vanilla `cargo test`
+let test#rust#cargotest#test_options = '--no-capture'
+" let test#vim#term_position = "belowright"
+" TIP: Running tests
+" nmap <silent> <leader>l :TestLast<CR>
+" nmap <silent> <leader>g :TestVisit<CR>
 ":bufdo e  - refreshes codeblocks when lang changes
 " open markdown previewer in browser
 nmap <C-p> <Plug>MarkdownPreviewToggle
@@ -59,6 +77,9 @@ nmap <C-p> <Plug>MarkdownPreviewToggle
 " Can't live without comma as leader key
 let mapleader = ","
 
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
 "
 " NERDTree configuration
 "
@@ -187,12 +208,7 @@ set shell=/usr/bin/zsh
 " colorscheme gruvbox
 set background=dark
 
-"" Get Alacritty to use true colors, found on stackoverflow
-if exists('+termguicolors')
-	let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
-	let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
-	set termguicolors
-endif
+set termguicolors
 
 "" personal helpers to invoke script that switches terminal dark/light mode
 function SetTerminalColor(profile)
@@ -213,8 +229,8 @@ else
 endif
 
 "" Convenience for switching terminal theme while in vim
-nnoremap <silent> <leader>td :call SetTerminalColor("dark")<CR>
-nnoremap <silent> <leader>tl :call SetTerminalColor("light")<CR>
+" nnoremap <silent> <leader>td :call SetTerminalColor("dark")<CR>
+" nnoremap <silent> <leader>tl :call SetTerminalColor("light")<CR>
 
 "
 " Codesearch config
@@ -226,10 +242,12 @@ nmap <leader>F :GFiles<CR>
 nmap <leader>b :Buffers<CR>
 nmap <leader>l :BLines<CR>
 nmap <leader>L :Lines<CR>
-nmap <leader>t :BTags<CR>
-nmap <leader>T :Tags<CR>
+" F8 for tagbar... not helpful
+" nmap <leader>t :BTags<CR>
+" nmap <leader>T :Tags<CR>
 nmap <leader>h :History<CR>
-nmap <leader>a :Ag<CR>
+" I use Rg...
+" nmap <leader>a :Ag<CR>
 
 "" F8 to view tags for current buffer
 nmap <F8> :TagbarToggle<CR>
@@ -274,31 +292,34 @@ else
   set signcolumn=yes
 endif
 
-" Use tab for trigger completion with characters ahead and navigate.
+" Use tab for trigger completion with characters ahead and navigate
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
+" other plugin before putting this into your config
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-function! s:check_back_space() abort
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-" Use <c-space> to trigger completion.
+" Use <c-space> to trigger completion
 if has('nvim')
   inoremap <silent><expr> <c-space> coc#refresh()
 else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -313,15 +334,13 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
-    execute '!' . &keywordprg . " " . expand('<cword>')
+    call feedkeys('K', 'in')
   endif
 endfunction
 
@@ -345,8 +364,8 @@ augroup end
 
 " Applying codeAction to the selected region.
 " Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+xmap <leader>ca  <Plug>(coc-codeaction-selected)
+nmap <leader>ca  <Plug>(coc-codeaction-selected)
 
 " Remap keys for applying codeAction to the current buffer.
 nmap <leader>ac  <Plug>(coc-codeaction)
@@ -451,10 +470,38 @@ autocmd FileType javascript setlocal shiftwidth=2 tabstop=2
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 
 syntax on
-set t_Co=256
+" set t_Co=256
+set t_ut=
 set cursorline
 colorscheme onehalfdark
 let g:airline_theme='onehalfdark'
 
 " let me scroll and click in vimspector
 set mouse=a
+
+hi VimwikiLink ctermfg=63
+
+" Disable tmux navigator when zooming the Vim pane
+let g:tmux_navigator_disable_when_zoomed = 1
+
+
+" add terraform ctags
+let g:tagbar_type_tf = {
+  \ 'ctagstype': 'tf',
+  \ 'kinds': [
+    \ 'r:Resource',
+    \ 'R:Resource',
+    \ 'd:Data',
+    \ 'D:Data',
+    \ 'v:Variable',
+    \ 'V:Variable',
+    \ 'p:Provider',
+    \ 'P:Provider',
+    \ 'm:Module',
+    \ 'M:Module',
+    \ 'o:Output',
+    \ 'O:Output',
+    \ 'f:TFVar',
+    \ 'F:TFVar'
+  \ ]
+\ }
