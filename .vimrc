@@ -401,6 +401,15 @@ xmap <silent> <C-s> <Plug>(coc-range-select)
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
 
+set foldmethod=syntax
+set foldlevel=1
+set foldnestmax=10
+set nofoldenable
+set foldcolumn=2
+" space to toggle fold (zf to create fold)
+nnoremap <space> za 
+
+
 " Add `:Fold` command to fold current buffer.
 command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
@@ -505,3 +514,6 @@ let g:tagbar_type_tf = {
     \ 'F:TFVar'
   \ ]
 \ }
+
+highlight Folded guifg=PeachPuff4
+" highlight FoldColumn guibg=darkgrey guifg=white
