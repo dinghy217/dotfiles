@@ -99,12 +99,15 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in
     \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | wincmd t | endif
 "" Exit Vim if NERDTree is the only window remaining in the only tab. :q ftw
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+" Close the tab if NERDTree is the only window remaining in it.
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
 "" simple shortcuts
 map <leader>nn :NERDTreeMirror<CR>
 map <leader>n :NERDTreeToggle<CR>
 map <leader>nf :NERDTreeFind<CR>
 
+let NERDTreeShowLineNumbers=1
 "" Prettier menus
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
@@ -285,12 +288,14 @@ set shortmess+=c
 
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
-if has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
-endif
+" if has("patch-8.1.1564")
+" "  Recently vim can merge signcolumn and number column into one
+"   set signcolumn=number
+" else
+"   set signcolumn=yes
+" endif
+" git-gutter and linenumbers don't play unless this is set
+set signcolumn=yes
 
 " Use tab for trigger completion with characters ahead and navigate
 " NOTE: There's always complete item selected by default, you may want to enable
@@ -517,3 +522,9 @@ let g:tagbar_type_tf = {
 
 highlight Folded guifg=PeachPuff4
 " highlight FoldColumn guibg=darkgrey guifg=white
+" let g:gitgutter_sign_allow_clobber = 0
+let g:gitgutter_highlight_linenrs = 1
+let g:gitgutter_set_sign_backgrounds = 1
+
+" bothered by poor formatting of context.vim on my file browser
+let g:context_filetype_blacklist = ['nerdtree']
